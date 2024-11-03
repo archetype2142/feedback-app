@@ -1,0 +1,104 @@
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+  <%# Sentiment Analysis Tile %>
+  <%= link_to admin_sentiment_analysis_index_path, class: "block" do %>
+    <div class="bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow">
+      <div class="flex justify-between items-center mb-4">
+        <h3 class="text-lg font-semibold text-gray-700">Sentiment Analysis</h3>
+        <span class="text-sm px-2 py-1 bg-blue-100 text-blue-800 rounded-full">
+          <%= @sentiment_preview[:weekly_change] %>% this week
+        </span>
+      </div>
+      
+      <div class="grid grid-cols-3 gap-4 mb-4">
+        <div class="text-center p-3 bg-green-50 rounded">
+          <div class="text-2xl font-bold text-green-600">
+            <%= @sentiment_preview[:distribution]['positive'] %>
+          </div>
+          <div class="text-sm text-gray-600">Positive</div>
+        </div>
+        <div class="text-center p-3 bg-gray-50 rounded">
+          <div class="text-2xl font-bold text-gray-600">
+            <%= @sentiment_preview[:distribution]['neutral'] %>
+          </div>
+          <div class="text-sm text-gray-600">Neutral</div>
+        </div>
+        <div class="text-center p-3 bg-red-50 rounded">
+          <div class="text-2xl font-bold text-red-600">
+            <%= @sentiment_preview[:distribution]['negative'] %>
+          </div>
+          <div class="text-sm text-gray-600">Negative</div>
+        </div>
+      </div>
+      <div class="mt-4 text-sm text-blue-600">
+        View detailed emotion analysis →
+      </div>
+    </div>
+  <% end %>
+
+  <%# Topic Clustering Tile %>
+  <%= link_to admin_topic_clusters_path, class: "block" do %>
+    <div class="bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow">
+      <div class="flex justify-between items-center mb-4">
+        <h3 class="text-lg font-semibold text-gray-700">Topic Clusters</h3>
+        <span class="text-sm px-2 py-1 bg-purple-100 text-purple-800 rounded-full">
+          <%= @topic_preview[:total_analyzed] %> analyzed
+        </span>
+      </div>
+      <div class="space-y-2">
+        <% @topic_preview[:clusters].each do |cluster| %>
+          <div class="flex justify-between items-center p-2 bg-gray-50 rounded">
+            <span class="text-gray-700"><%= cluster[:name] %></span>
+            <span class="text-sm text-gray-500"><%= cluster[:count] %> items</span>
+          </div>
+        <% end %>
+      </div>
+      <div class="mt-4 text-sm text-blue-600">
+        Explore topic clusters →
+      </div>
+    </div>
+  <% end %>
+
+  <%# Feedback Summary Tile %>
+  <%= link_to admin_summaries_path, class: "block" do %>
+    <div class="bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow">
+      <div class="flex justify-between items-center mb-4">
+        <h3 class="text-lg font-semibold text-gray-700">Weekly Summary</h3>
+        <span class="text-sm px-2 py-1 bg-green-100 text-green-800 rounded-full">
+          <%= @summary_preview[:total_analyzed] %> feedbacks
+        </span>
+      </div>
+      <div class="text-gray-600 mb-4">
+        <%= @summary_preview[:latest] %>
+      </div>
+      <div class="mt-4 text-sm text-blue-600">
+        View full summaries →
+      </div>
+    </div>
+  <% end %>
+
+  <%# Impact Analysis Tile %>
+  <%= link_to admin_impact_analysis_index_path, class: "block" do %>
+    <div class="bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow">
+      <div class="flex justify-between items-center mb-4">
+        <h3 class="text-lg font-semibold text-gray-700">Impact Analysis</h3>
+        <span class="text-sm px-2 py-1 bg-blue-100 text-blue-800 rounded-full">
+          <%= @impact_preview[:latest_impact] %>
+        </span>
+      </div>
+      <div class="space-y-2">
+        <div class="p-3 bg-gray-50 rounded">
+          <div class="text-sm text-gray-600">Recent Changes</div>
+          <div class="font-medium">
+            <%= @impact_preview[:recent_changes][:period] %>:
+            <span class="<%= @impact_preview[:recent_changes][:sentiment_change] >= 0 ? 'text-green-600' : 'text-red-600' %>">
+              <%= @impact_preview[:recent_changes][:sentiment_change] %>%
+            </span>
+          </div>
+        </div>
+      </div>
+      <div class="mt-4 text-sm text-blue-600">
+        Analyze feature impact →
+      </div>
+    </div>
+  <% end %>
+</div>

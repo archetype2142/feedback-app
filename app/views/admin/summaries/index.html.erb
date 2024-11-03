@@ -1,0 +1,31 @@
+<div class="p-6 space-y-6">
+  <div class="bg-white rounded-lg shadow p-6">
+    <h2 class="text-xl font-bold mb-4">Feedback Summaries</h2>
+
+    <div class="mb-6">
+      <%= form_tag admin_summaries_path, method: :get, class: "flex gap-4" do %>
+        <%= select_tag :timeframe, 
+            options_for_select(['weekly', 'monthly'], @timeframe),
+            class: "form-select" %>
+        <%= submit_tag "Update", class: "px-4 py-2 bg-blue-600 text-white rounded" %>
+      <% end %>
+    </div>
+
+    <div class="space-y-6">
+      <% @summaries.each do |summary| %>
+        <div class="bg-gray-50 p-4 rounded-lg">
+          <div class="flex justify-between items-center mb-2">
+            <h3 class="font-semibold">
+              <%= summary.start_date.strftime("%B %d") %> - 
+              <%= summary.end_date.strftime("%B %d, %Y") %>
+            </h3>
+            <span class="text-sm text-gray-500">
+              <%= summary.timeframe.titleize %>
+            </span>
+          </div>
+          <p class="text-gray-700"><%= summary.content %></p>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>

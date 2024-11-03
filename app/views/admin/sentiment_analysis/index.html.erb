@@ -1,0 +1,32 @@
+<div class="p-6 space-y-6">
+  <div class="bg-white rounded-lg shadow p-6">
+    <h2 class="text-xl font-bold mb-4">Sentiment Analysis</h2>
+    
+    <div class="mb-6 bg-blue-50 p-4 rounded-lg">
+      <h3 class="font-semibold mb-2">Weekly Insight</h3>
+      <p class="text-gray-700"><%= @weekly_insight %></p>
+    </div>
+
+    <div class="mb-6">
+      <%= line_chart @sentiment_trend, 
+          title: "Sentiment Trend (Weekly Average)",
+          colors: ["#10B981"] %>
+    </div>
+
+    <div class="overflow-x-auto">
+      <table class="min-w-full">
+        <thead>
+          <tr>
+            <th class="px-6 py-3 bg-gray-50 text-left">Feedback</th>
+            <th class="px-6 py-3 bg-gray-50 text-left">Emotion Score</th>
+            <th class="px-6 py-3 bg-gray-50 text-left">Date</th>
+            <th class="px-6 py-3 bg-gray-50 text-left">Actions</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-200">
+          <%= render partial: 'emotion_score_row', collection: @emotion_scores, as: :feedback %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

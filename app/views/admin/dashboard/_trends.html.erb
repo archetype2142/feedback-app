@@ -1,0 +1,13 @@
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+  <div class="bg-white rounded-lg shadow p-6">
+    <h3 class="text-lg font-semibold mb-4">Sentiment Trends</h3>
+    <%= line_chart @trends[:sentiment_trend],
+        colors: ["#10B981", "#6B7280", "#EF4444"] %>
+  </div>
+
+  <div class="bg-white rounded-lg shadow p-6">
+    <h3 class="text-lg font-semibold mb-4">Top Keywords</h3>
+    <%= bar_chart @trends[:keyword_trends],
+        colors: ["#8B5CF6"] %>
+  </div>
+</div>

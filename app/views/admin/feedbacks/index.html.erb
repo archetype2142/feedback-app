@@ -1,0 +1,52 @@
+<div class="bg-white rounded-lg shadow p-6">
+  <div class="mb-6">
+    <h1 class="text-2xl font-bold">Feedbacks</h1>
+  </div>
+
+  <%= search_form_for @q, url: admin_feedbacks_path, class: "mb-6" do |f| %>
+    <div class="flex gap-4">
+      <%= f.search_field :content_cont, placeholder: "Search content...", class: "rounded border p-2" %>
+      <%= f.select :status_eq, Feedback.statuses.keys.map { |s| [s.titleize, s] }, 
+                  { include_blank: "All Statuses" }, 
+                  class: "rounded border p-2" %>
+      <%= f.submit "Search", class: "bg-blue-500 text-white px-4 py-2 rounded" %>
+    </div>
+  <% end %>
+
+  <div class="overflow-x-auto">
+    <table class="min-w-full">
+      <thead class="bg-gray-50">
+        <tr>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Content</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Created At</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+        </tr>
+      </thead>
+      <tbody class="bg-white divide-y divide-gray-200">
+        <% @feedbacks.each do |feedback| %>
+          <tr>
+            <td class="px-6 py-4 whitespace-normal"><%= feedback.content %></td>
+            <td class="px-6 py-4">
+              <%= form_with(model: [:admin, feedback], local: true) do |f| %>
+                <%= f.select :status, 
+                    Feedback.statuses.keys.map { |s| [s.titleize, s] },
+                    {},
+                    class: "rounded border p-1",
+                    onchange: 'this.form.submit()' %>
+              <% end %>
+            </td>
+            <td class="px-6 py-4"><%= feedback.created_at.strftime("%B %d, %Y") %></td>
+            <td class="px-6 py-4">
+              <%= link_to "View", "#", class: "text-blue-600 hover:text-blue-900" %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="mt-4">
+    <%= paginate @feedbacks %>
+  </div>
+</div>

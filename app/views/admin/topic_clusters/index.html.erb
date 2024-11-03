@@ -1,0 +1,37 @@
+<div class="p-6 space-y-6">
+  <div class="bg-white rounded-lg shadow p-6">
+    <h2 class="text-xl font-bold mb-4">Topic Clusters</h2>
+
+    <div class="mb-6">
+      <%= form_tag admin_topic_clusters_path, method: :get, class: "space-y-4" do %>
+        <div class="flex flex-wrap gap-2">
+          <% @topics.each do |topic| %>
+            <label class="inline-flex items-center">
+              <%= check_box_tag "topics[]", topic, true, class: "form-checkbox" %>
+              <span class="ml-2"><%= topic %></span>
+            </label>
+          <% end %>
+        </div>
+        <%= submit_tag "Update Topics", class: "mt-4 px-4 py-2 bg-blue-600 text-white rounded" %>
+      <% end %>
+    </div>
+
+    <div class="mb-6 bg-blue-50 p-4 rounded-lg">
+      <h3 class="font-semibold mb-2">Topic Insight</h3>
+      <p class="text-gray-700"><%= @topic_insight %></p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <% @clusters.each do |topic, feedbacks| %>
+        <div class="bg-gray-50 p-4 rounded-lg">
+          <h3 class="font-semibold mb-2"><%= topic %></h3>
+          <p class="text-gray-600 mb-2"><%= feedbacks.count %> items</p>
+          <button onclick="showTopicFeedbacks('<%= topic %>')" 
+                  class="text-blue-600 hover:text-blue-800">
+            View Feedbacks
+          </button>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>

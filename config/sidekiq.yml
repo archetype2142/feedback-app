@@ -1,0 +1,7 @@
+---
+:queues:
+  - default
+  - mailers
+  - active_storage_analysis
+  - active_storage_purge
+:logfile: ./log/sidekiq.log

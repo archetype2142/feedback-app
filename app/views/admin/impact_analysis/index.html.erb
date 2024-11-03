@@ -1,0 +1,41 @@
+<div class="p-6 space-y-6">
+  <div class="bg-white rounded-lg shadow p-6">
+    <h2 class="text-xl font-bold mb-4">Feature Impact Analysis</h2>
+
+    <div class="mb-6">
+      <%= form_tag admin_impact_analysis_index_path, method: :get, class: "flex gap-4" do %>
+        <%= select_tag :feature_id, 
+            options_from_collection_for_select(@features, :id, :name, @selected_feature.id),
+            class: "form-select" %>
+        <%= select_tag :date_range,
+            options_for_select(['7_days', '30_days', '90_days'], @date_range),
+            class: "form-select" %>
+        <%= submit_tag "Analyze", class: "px-4 py-2 bg-blue-600 text-white rounded" %>
+      <% end %>
+    </div>
+
+    <div class="mb-6 bg-blue-50 p-4 rounded-lg">
+      <h3 class="font-semibold mb-2">Impact Summary</h3>
+      <p class="text-gray-700"><%= @impact_analysis.summary %></p>
+    </div>
+
+    <div class="mb-6">
+      <%= line_chart @impact_analysis.sentiment_chart_data,
+          title: "Sentiment Before vs After Release",
+          colors: ["#10B981", "#EF4444"] %>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div class="bg-gray-50 p-4 rounded-lg">
+        <h3 class="font-semibold mb-2">Before Release</h3>
+        <%= render partial: 'feedback_list', 
+                   locals: { feedbacks: @impact_analysis.before_feedbacks } %>
+      </div>
+      <div class="bg-gray-50 p-4 rounded-lg">
+        <h3 class="font-semibold mb-2">After Release</h3>
+        <%= render partial: 'feedback_list', 
+                   locals: { feedbacks: @impact_analysis.after_feedbacks } %>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,96 @@
+<%# app/views/admin/dashboard/index.html.erb %>
+<div class="p-6 space-y-6">
+  <%= render 'stats' %>
+  <%= render 'trends' %>
+
+  <%# Quick Stats %>
+  <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+    <div class="bg-white rounded-lg shadow p-6">
+      <h3 class="text-lg font-semibold text-gray-700">Total Feedback</h3>
+      <p class="text-3xl font-bold text-blue-600"><%= @feedback_count %></p>
+    </div>
+    
+    <div class="bg-white rounded-lg shadow p-6">
+      <h3 class="text-lg font-semibold text-gray-700">Unresolved</h3>
+      <p class="text-3xl font-bold text-yellow-600"><%= @unresolved_count %></p>
+    </div>
+    
+    <div class="bg-white rounded-lg shadow p-6">
+      <h3 class="text-lg font-semibold text-gray-700">Positive Sentiment</h3>
+      <p class="text-3xl font-bold text-green-600"><%= @sentiment_distribution['positive'] || 0 %></p>
+    </div>
+    
+    <div class="bg-white rounded-lg shadow p-6">
+      <h3 class="text-lg font-semibold text-gray-700">Negative Sentiment</h3>
+      <p class="text-3xl font-bold text-red-600"><%= @sentiment_distribution['negative'] || 0 %></p>
+    </div>
+  </div>
+
+  <%# Charts Row %>
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div class="bg-white rounded-lg shadow p-6">
+      <h3 class="text-lg font-semibold mb-4">Sentiment Distribution</h3>
+      <%= pie_chart @sentiment_distribution, 
+          colors: ["#10B981", "#6B7280", "#EF4444"], 
+          donut: true %>
+    </div>
+
+    <div class="bg-white rounded-lg shadow p-6">
+      <h3 class="text-lg font-semibold mb-4">Feedback by Hour</h3>
+      <%= column_chart @hourly_distribution %>
+    </div>
+  </div>
+
+  <%# Source and Device Analytics %>
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div class="bg-white rounded-lg shadow p-6">
+      <h3 class="text-lg font-semibold mb-4">Top Source Pages</h3>
+      <%= bar_chart @source_distribution %>
+    </div>
+
+    <div class="bg-white rounded-lg shadow p-6">
+      <h3 class="text-lg font-semibold mb-4">Device Distribution</h3>
+      <%= pie_chart @device_distribution %>
+    </div>
+  </div>
+
+  <%# Action Items %>
+  <div class="grid grid-cols-1 gap-6">
+    <div class="bg-white rounded-lg shadow p-6">
+      <h3 class="text-lg font-semibold mb-4">Suggested Actions</h3>
+      <div class="space-y-4">
+        <% @suggested_actions.each do |action, count| %>
+          <div class="flex items-center justify-between p-4 bg-gray-50 rounded">
+            <span class="text-gray-700"><%= action %></span>
+            <span class="px-4 py-1 bg-blue-100 text-blue-800 rounded-full">
+              <%= count %> items
+            </span>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+
+  <%# Recent Negative Feedback %>
+  <div class="bg-white rounded-lg shadow p-6">
+    <h3 class="text-lg font-semibold mb-4">Recent Negative Feedback</h3>
+    <div class="space-y-4">
+      <% @recent_negative_feedbacks.each do |feedback| %>
+        <div class="border-l-4 border-red-500 pl-4 py-2">
+          <p class="text-gray-700"><%= feedback.content %></p>
+          <div class="mt-2 flex items-center text-sm text-gray-500">
+            <span class="mr-4">
+              <%= feedback.created_at.strftime("%B %d, %Y %H:%M") %>
+            </span>
+            <span class="mr-4">
+              <%= feedback.source_page %>
+            </span>
+            <span>
+              <%= feedback.device_type %>
+            </span>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>

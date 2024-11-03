@@ -1,0 +1,20 @@
+<tr>
+  <td class="px-6 py-4">
+    <%= feedback.content.truncate(100) %>
+  </td>
+  <td class="px-6 py-4">
+    <span class="<%= emotion_score_color(feedback.emotion_score[:score]) %>">
+      <%= feedback.emotion_score[:label] %>
+      (<%= feedback.emotion_score[:score].round(2) %>)
+    </span>
+  </td>
+  <td class="px-6 py-4">
+    <%= feedback.created_at.strftime("%B %d, %Y") %>
+  </td>
+  <td class="px-6 py-4">
+    <button onclick="showEmotionDetails(<%= feedback.id %>)"
+            class="text-blue-600 hover:text-blue-800">
+      View Details
+    </button>
+  </td>
+</tr>
