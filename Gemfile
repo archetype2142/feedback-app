@@ -18,6 +18,8 @@ gem 'sidekiq-failures'
 gem 'sidekiq-scheduler'
 gem 'sprockets-rails'
 gem 'tailwindcss-rails'
+gem 'cssbundling-rails'
+
 gem 'sassc-rails'
 # Use the Puma web server [https://github.com/puma/puma]
 gem 'puma', '>= 5.0'
