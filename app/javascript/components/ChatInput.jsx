@@ -16,13 +16,17 @@ const ChatInput = ({
     }
   };
 
+  const handleChange = (e) => {
+    setMessage(e.target.value);
+  };
+
   return (
     <div className="border-t border-gray-200 dark:border-white bg-white dark:bg-black p-4">
       <form onSubmit={handleSubmit} className="max-w-3xl mx-auto flex gap-3 items-center">
         <div className="relative flex-1">
           <textarea
             value={message}
-            onChange={(e) => setMessage(e.target.value)}
+            onChange={handleChange}
             onKeyDown={handleKeyDown}
             placeholder="Type your message"
             className="h-[57px] w-full p-4 pr-14 text-gray-900 dark:text-white bg-white dark:bg-black rounded-full border border-white dark:border-white focus:ring-2 focus:ring-emerald-500 focus:border-transparent resize-none overflow-y-auto scrollbar-hide"

@@ -10,6 +10,7 @@ import { useCableSubscription } from '../hooks/useCableSubscription';
 import ChatHeader from './ChatHeader';
 import ChatBody from './ChatBody';
 import ChatInput from './ChatInput';
+import { debounce } from 'lodash'; // Add this import
 
 const WelcomeLogo = () => (
   <div className="w-full flex justify-center items-center h-full">
@@ -27,6 +28,7 @@ const FeedbackForm = () => {
   const [selectedLanguage, setSelectedLanguage] = useState('en-US');
   const [isResponseLoading, setIsResponseLoading] = useState(false);
   const [shouldSubscribe, setShouldSubscribe] = useState(false);
+  const [debouncedMessage, setDebouncedMessage] = useState('');
 
   const { 
     currentFeedback, 
@@ -40,6 +42,19 @@ const FeedbackForm = () => {
 
   const subscription = useCableSubscription(currentFeedback?.id, handleFeedbackUpdate);
   const { isListening, recognition, setIsListening } = useSpeechRecognition(setMessage);
+
+  const debouncedSetMessage = useCallback(
+    debounce((value) => {
+      setDebouncedMessage(value);
+    }, 500),
+    []
+  );
+
+  useEffect(() => {
+    return () => {
+      debouncedSetMessage.cancel();
+    };
+  }, [debouncedSetMessage]);
 
   const addMessageToChat = (content, isUser = true) => {
     if (!currentFeedback) {
@@ -72,7 +87,7 @@ const FeedbackForm = () => {
       return;
     }
 
-    const messageContent = message;
+    const messageContent = debouncedMessage;
     setMessage('');
     setIsSubmitting(true);
     setIsResponseLoading(true);
@@ -148,10 +163,14 @@ const FeedbackForm = () => {
           isResponseLoading={isResponseLoading}
         />
       }
+
       <div className="flex-none">
         <ChatInput 
           message={message}
-          setMessage={setMessage}
+          setMessage={(value) => {
+            setMessage(value);
+            debouncedSetMessage(value);
+          }}
           isSubmitting={isSubmitting}
           isListening={isListening}
           handleSubmit={handleSubmit}
