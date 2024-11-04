@@ -1,8 +1,8 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, memo } from 'react';
 import ChatMessage from './ChatMessage';
 import LoadingIndicator from './LoadingIndicator';
 
-const ChatBody = ({ currentFeedback, isResponseLoading }) => {
+const ChatBody = memo(({ currentFeedback, isResponseLoading }) => {
   const messagesEndRef = useRef(null);
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -24,7 +24,7 @@ const ChatBody = ({ currentFeedback, isResponseLoading }) => {
             />
           )}
 
-          {currentFeedback.replies.map((reply) => (
+          {currentFeedback.replies.filter(reply => ("feedback_id" in reply)).map((reply) => (
             <ChatMessage 
               key={reply.id}
               message={reply}
@@ -39,6 +39,6 @@ const ChatBody = ({ currentFeedback, isResponseLoading }) => {
     </div>
   </div>
   );
-};
+});
 
 export default ChatBody;

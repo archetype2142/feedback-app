@@ -3,9 +3,10 @@ class InitialFeedbackJob < ApplicationJob
 
   def perform(feedback, callback_url = nil)
     openai_service = OpenaiService.new
-    initial_response = openai_service.get_completion(PROMPT_1, feedback)
-    feedback_data = JSON.parse(initial_response)
-    
+    # initial_response = openai_service.get_completion(PROMPT_1, feedback)
+    # feedback_data = JSON.parse(initial_response)
+    feedback_data = {"feedback"=>["test"], "sentiment_score"=>0, "good_points"=>[]}
+
     sentiment_score = feedback_data['sentiment_score']
 
     final_output = case

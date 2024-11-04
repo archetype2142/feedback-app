@@ -10,7 +10,6 @@ import { useCableSubscription } from '../hooks/useCableSubscription';
 import ChatHeader from './ChatHeader';
 import ChatBody from './ChatBody';
 import ChatInput from './ChatInput';
-import { debounce } from 'lodash'; // Add this import
 
 const WelcomeLogo = () => (
   <div className="w-full flex justify-center items-center h-full">
@@ -28,7 +27,6 @@ const FeedbackForm = () => {
   const [selectedLanguage, setSelectedLanguage] = useState('en-US');
   const [isResponseLoading, setIsResponseLoading] = useState(false);
   const [shouldSubscribe, setShouldSubscribe] = useState(false);
-  const [debouncedMessage, setDebouncedMessage] = useState('');
 
   const { 
     currentFeedback, 
@@ -42,19 +40,6 @@ const FeedbackForm = () => {
 
   const subscription = useCableSubscription(currentFeedback?.id, handleFeedbackUpdate);
   const { isListening, recognition, setIsListening } = useSpeechRecognition(setMessage);
-
-  const debouncedSetMessage = useCallback(
-    debounce((value) => {
-      setDebouncedMessage(value);
-    }, 500),
-    []
-  );
-
-  useEffect(() => {
-    return () => {
-      debouncedSetMessage.cancel();
-    };
-  }, [debouncedSetMessage]);
 
   const addMessageToChat = (content, isUser = true) => {
     if (!currentFeedback) {
@@ -74,7 +59,7 @@ const FeedbackForm = () => {
       setCurrentFeedback(prev => ({
         ...prev,
         replies: [
-          ...prev.replies,
+          ...prev.replies, { id: `temp-${Date.now()}`, content: content, sender_type: isUser ? 'user' : 'system' }
         ]
       }));
     }
@@ -87,7 +72,7 @@ const FeedbackForm = () => {
       return;
     }
 
-    const messageContent = debouncedMessage;
+    const messageContent = message;
     setMessage('');
     setIsSubmitting(true);
     setIsResponseLoading(true);
@@ -167,10 +152,7 @@ const FeedbackForm = () => {
       <div className="flex-none">
         <ChatInput 
           message={message}
-          setMessage={(value) => {
-            setMessage(value);
-            debouncedSetMessage(value);
-          }}
+          setMessage={(value) => { setMessage(value); }}
           isSubmitting={isSubmitting}
           isListening={isListening}
           handleSubmit={handleSubmit}

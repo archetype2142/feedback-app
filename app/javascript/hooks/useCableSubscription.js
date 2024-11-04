@@ -1,67 +1,68 @@
-import { useEffect, useCallback, useRef } from 'react';
+// hooks/useCableSubscription.js
+import { useRef, useEffect, useCallback } from 'react';
 import { createConsumer } from '@rails/actioncable';
 
-// Create consumer outside component to prevent recreation
 const consumer = createConsumer();
 
 export const useCableSubscription = (feedbackId, setCurrentFeedback) => {
-  // Use ref to store subscription
   const subscriptionRef = useRef(null);
   
-  // Memoize handleMessage and use ref to avoid recreating subscription
-  const handleMessage = useCallback((data) => {
-    if (data.type === 'initial_state' || data.type === 'update') {
-      setCurrentFeedback(data.feedback);
-    }
-  }, [setCurrentFeedback]);
+  // Memoize the message handler to keep it stable across renders
+  const handleReceivedMessage = useCallback((data) => {
+    console.log('📩 Received data:', data);
 
-  useEffect(() => {
-    if (!feedbackId) {
-      // Cleanup existing subscription if feedbackId becomes null
-      if (subscriptionRef.current) {
-        subscriptionRef.current.unsubscribe();
-        subscriptionRef.current = null;
-      }
-      return;
+    switch(data.type) {
+      case 'initial_state':
+      case 'update':
+        setCurrentFeedback(data.feedback);
+        break;
+      default:
+        console.log('Unknown message type:', data);
     }
+  }, []);
 
-    // Don't create new subscription if we already have one for this feedbackId
-    if (subscriptionRef.current?.feedbackId === feedbackId) {
-      return;
-    }
-
-    // Cleanup previous subscription if exists
+   useEffect(() => {
     if (subscriptionRef.current) {
-      subscriptionRef.current.unsubscribe();
+      subscriptionRef.current.subscription.unsubscribe();
+      subscriptionRef.current = null;
     }
 
-    // Create new subscription
-    const subscription = consumer.subscriptions.create(
-      { 
-        channel: 'FeedbackChannel', 
-        feedback_id: feedbackId 
-      },
-      { 
-        received: handleMessage,
-        // Add connection handlers for debugging if needed
-        connected() {
-          console.log(`Connected to feedback ${feedbackId}`);
+    if (feedbackId && !String(feedbackId)?.includes('temp')) {
+      console.log('Setting up Action Cable subscription...', feedbackId);
+      
+      const subscription = consumer.subscriptions.create(
+        {
+          channel: 'FeedbackChannel',
+          feedback_id: feedbackId
         },
-        disconnected() {
-          console.log(`Disconnected from feedback ${feedbackId}`);
+        {
+          connected() {
+            console.log('🟢 Connected to FeedbackChannel');
+          },
+          disconnected() {
+            console.log('🔴 Disconnected from FeedbackChannel');
+          },
+          rejected() {
+            console.log('❌ Subscription rejected');
+          },
+          received: handleReceivedMessage
         }
-      }
-    );
+      );
 
-    // Store feedbackId with subscription for comparison
-    subscription.feedbackId = feedbackId;
-    subscriptionRef.current = subscription;
+      subscriptionRef.current = {
+        feedbackId,
+        subscription
+      };
+    }
 
     return () => {
       if (subscriptionRef.current) {
-        subscriptionRef.current.unsubscribe();
+        console.log('Cleaning up subscription...');
+        subscriptionRef.current.subscription.unsubscribe();
         subscriptionRef.current = null;
       }
     };
-  }, [feedbackId]); // Remove handleMessage from dependencies
+  }, [feedbackId, handleReceivedMessage]);
+
+  return subscriptionRef.current?.subscription;
 };
