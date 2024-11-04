@@ -43,9 +43,9 @@ class Feedback < ApplicationRecord
   end
 
   def analyze_sentiment
-    self.sentiment = if self.sentiment_score > 0
+    self.sentiment = if self.sentiment_score > 1
                       'positive'
-                    elsif self.sentiment_score < 0
+                    elsif self.sentiment_score < -1
                       'negative'
                     else
                       'neutral'
@@ -88,10 +88,10 @@ class Feedback < ApplicationRecord
   scope :with_emotion_scores, -> { 
     select("*").select(
       "CASE 
-        WHEN sentiment_score >= 0.7 THEN 'very_positive'
-        WHEN sentiment_score >= 0.3 THEN 'positive'
-        WHEN sentiment_score > -0.3 THEN 'neutral'
-        WHEN sentiment_score > -0.7 THEN 'negative'
+        WHEN sentiment_score >= 2.5 THEN 'very_positive'
+        WHEN sentiment_score >= 1 THEN 'positive'
+        WHEN sentiment_score > -1 THEN 'neutral'
+        WHEN sentiment_score > -2.5 THEN 'negative'
         ELSE 'very_negative'
       END as emotion"
     )
@@ -104,76 +104,23 @@ class Feedback < ApplicationRecord
       .order(created_at: :desc)
   end
 
-  # Modified method to get emotion trend
-  def self.emotion_trend(days = 30)
-    select(
-      "DATE(created_at) as date",
-      "CASE 
-        WHEN sentiment_score >= 0.7 THEN 'very_positive'
-        WHEN sentiment_score >= 0.3 THEN 'positive'
-        WHEN sentiment_score > -0.3 THEN 'neutral'
-        WHEN sentiment_score > -0.7 THEN 'negative'
-        ELSE 'very_negative'
-      END as emotion"
-    )
-    .where('created_at > ?', days.days.ago)
-    .group('date', 'emotion')
-    .count
-  end
-
   # Add method to calculate emotion
   def emotion_score
     case
-    when sentiment_score >= 0.7
+    when sentiment_score >= 2.5
       { score: sentiment_score, label: 'very_positive' }
-    when sentiment_score >= 0.3
+    when sentiment_score >= 1
       { score: sentiment_score, label: 'positive' }
-    when sentiment_score > -0.3
+    when sentiment_score > -1
       { score: sentiment_score, label: 'neutral' }
-    when sentiment_score > -0.7
+    when sentiment_score > -2.5
       { score: sentiment_score, label: 'negative' }
     else
       { score: sentiment_score, label: 'very_negative' }
     end
   end
 
-  def calculate_emotion
-    case 
-    when sentiment_score >= 0.7
-      'very_positive'
-    when sentiment_score >= 0.3
-      'positive'
-    when sentiment_score > -0.3
-      'neutral'
-    when sentiment_score > -0.7
-      'negative'
-    else
-      'very_negative'
-    end
-  end
-
-  # Modify the analyze_sentiment method to be more granular
-  def analyze_sentiment
-    self.sentiment = case
-    when sentiment_score >= 0.3
-      'positive'
-    when sentiment_score <= -0.3
-      'negative'
-    else
-      'neutral'
-    end
-  end
-
-
-  # Add method to get emotion trend
-  def self.emotion_trend(days = 30)
-    with_emotion_scores
-      .where('created_at > ?', days.days.ago)
-      .group('DATE(created_at)', 'emotion')
-      .count
-  end
-
-   def analyze_topic
+  def analyze_topic
     # Convert content to lowercase for case-insensitive matching
     text = content.to_s.downcase
 

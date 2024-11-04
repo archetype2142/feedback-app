@@ -1000,7 +1000,7 @@
             }
             return dispatcher.useContext(Context);
           }
-          function useState9(initialState) {
+          function useState7(initialState) {
             var dispatcher = resolveDispatcher();
             return dispatcher.useState(initialState);
           }
@@ -1008,11 +1008,11 @@
             var dispatcher = resolveDispatcher();
             return dispatcher.useReducer(reducer, initialArg, init);
           }
-          function useRef8(initialValue) {
+          function useRef5(initialValue) {
             var dispatcher = resolveDispatcher();
             return dispatcher.useRef(initialValue);
           }
-          function useEffect11(create, deps) {
+          function useEffect9(create, deps) {
             var dispatcher = resolveDispatcher();
             return dispatcher.useEffect(create, deps);
           }
@@ -1793,15 +1793,15 @@
           exports.useContext = useContext3;
           exports.useDebugValue = useDebugValue;
           exports.useDeferredValue = useDeferredValue;
-          exports.useEffect = useEffect11;
+          exports.useEffect = useEffect9;
           exports.useId = useId;
           exports.useImperativeHandle = useImperativeHandle;
           exports.useInsertionEffect = useInsertionEffect;
           exports.useLayoutEffect = useLayoutEffect3;
           exports.useMemo = useMemo3;
           exports.useReducer = useReducer;
-          exports.useRef = useRef8;
-          exports.useState = useState9;
+          exports.useRef = useRef5;
+          exports.useState = useState7;
           exports.useSyncExternalStore = useSyncExternalStore;
           exports.useTransition = useTransition;
           exports.version = ReactVersion;
@@ -25215,34 +25215,14 @@
   var LoadingIndicator = () => /* @__PURE__ */ import_react2.default.createElement("div", {
     className: "flex justify-start"
   }, /* @__PURE__ */ import_react2.default.createElement("div", {
-    className: "bg-gray-200 dark:bg-gray-700 rounded-lg p-4 max-w-md"
+    className: "bg-gray-200 dark:bg-gray-700 rounded-lg p-4"
   }, /* @__PURE__ */ import_react2.default.createElement("div", {
-    className: "flex space-x-1"
-  }, /* @__PURE__ */ import_react2.default.createElement("div", {
-    className: "w-2 h-2 bg-gray-400 rounded-full",
-    style: {
-      animation: "bounce 0.7s infinite",
-      animationDelay: "0ms",
-      transform: "translateY(0)",
-      animationTimingFunction: "cubic-bezier(0.28, 0.84, 0.42, 1)"
-    }
-  }), /* @__PURE__ */ import_react2.default.createElement("div", {
-    className: "w-2 h-2 bg-gray-400 rounded-full",
-    style: {
-      animation: "bounce 0.7s infinite",
-      animationDelay: "100ms",
-      transform: "translateY(0)",
-      animationTimingFunction: "cubic-bezier(0.28, 0.84, 0.42, 1)"
-    }
-  }), /* @__PURE__ */ import_react2.default.createElement("div", {
-    className: "w-2 h-2 bg-gray-400 rounded-full",
-    style: {
-      animation: "bounce 0.7s infinite",
-      animationDelay: "200ms",
-      transform: "translateY(0)",
-      animationTimingFunction: "cubic-bezier(0.28, 0.84, 0.42, 1)"
-    }
-  }))));
+    className: "flex space-x-2"
+  }, [0, 1, 2].map((i2) => /* @__PURE__ */ import_react2.default.createElement("div", {
+    key: i2,
+    className: "w-2 h-2 bg-gray-400 rounded-full animate-bounce",
+    style: { animationDelay: `${i2 * 100}ms` }
+  })))));
   var LoadingIndicator_default = LoadingIndicator;
 
   // app/javascript/components/ChatMessage.jsx
@@ -25370,6 +25350,12 @@
   var import_react5 = __toESM(require_react(), 1);
   var useFeedbackState = () => {
     const [currentFeedback, setCurrentFeedback] = (0, import_react5.useState)(null);
+    (0, import_react5.useEffect)(() => {
+      const savedFeedbackId = localStorage.getItem("currentFeedbackId");
+      if (savedFeedbackId) {
+        handleFetchFeedback(savedFeedbackId);
+      }
+    }, []);
     const handleFetchFeedback = async (feedbackId) => {
       try {
         const data = await fetchFeedback(feedbackId);
@@ -25378,17 +25364,16 @@
       } catch (error) {
         localStorage.removeItem("currentFeedbackId");
         console.error("Error fetching feedback:", error);
+        throw error;
       }
     };
-    (0, import_react5.useEffect)(() => {
-      const savedFeedbackId = localStorage.getItem("currentFeedbackId");
-      if (savedFeedbackId) {
-        handleFetchFeedback(savedFeedbackId);
-      }
-    }, []);
     const updateFeedback = (newFeedback) => {
+      if (!newFeedback) {
+        clearFeedback();
+        return;
+      }
       setCurrentFeedback(newFeedback);
-      if (newFeedback?.id) {
+      if (newFeedback.id) {
         localStorage.setItem("currentFeedbackId", newFeedback.id);
       }
     };
@@ -25396,61 +25381,11 @@
       setCurrentFeedback(null);
       localStorage.removeItem("currentFeedbackId");
     };
-    const addReply = (reply) => {
-      setCurrentFeedback((prev) => {
-        if (!prev)
-          return prev;
-        return {
-          ...prev,
-          replies: [...prev.replies, reply]
-        };
-      });
-    };
-    const updateReply = (replyId, updatedReply) => {
-      setCurrentFeedback((prev) => {
-        if (!prev)
-          return prev;
-        return {
-          ...prev,
-          replies: prev.replies.map(
-            (reply) => reply.id === replyId ? { ...reply, ...updatedReply } : reply
-          )
-        };
-      });
-    };
-    const removeReply = (replyId) => {
-      setCurrentFeedback((prev) => {
-        if (!prev)
-          return prev;
-        return {
-          ...prev,
-          replies: prev.replies.filter((reply) => reply.id !== replyId)
-        };
-      });
-    };
-    const addTemporaryReply = (content, isUser = true) => {
-      const tempReply = {
-        id: `temp-${Date.now()}`,
-        content,
-        created_at: new Date().toISOString(),
-        sender_type: isUser ? "user" : "assistant"
-      };
-      addReply(tempReply);
-      return tempReply.id;
-    };
-    const replaceTemporaryReply = (tempId, permanentReply) => {
-      updateReply(tempId, permanentReply);
-    };
     return {
       currentFeedback,
-      setCurrentFeedback: updateFeedback,
       handleFetchFeedback,
-      clearFeedback,
-      addReply,
-      updateReply,
-      removeReply,
-      addTemporaryReply,
-      replaceTemporaryReply
+      setCurrentFeedback: updateFeedback,
+      clearFeedback
     };
   };
   var useFeedbackState_default = useFeedbackState;
@@ -25948,60 +25883,20 @@
   // app/javascript/hooks/useCableSubscription.js
   var consumer = createConsumer();
   var useCableSubscription = (feedbackId, setCurrentFeedback) => {
-    const subscriptionRef = (0, import_react6.useRef)(null);
-    const handleReceivedMessage = (0, import_react6.useCallback)((data) => {
-      console.log("\u{1F4E9} Received data:", data);
-      switch (data.type) {
-        case "initial_state":
-        case "update":
-          setCurrentFeedback(data.feedback);
-          break;
-        case "test":
-          console.log("Received test message:", data.message);
-          break;
-        default:
-          console.log("Unknown message type:", data.type);
+    const handleMessage = (0, import_react6.useCallback)((data) => {
+      if (data.type === "initial_state" || data.type === "update") {
+        setCurrentFeedback(data.feedback);
       }
-    }, []);
+    }, [setCurrentFeedback]);
     (0, import_react6.useEffect)(() => {
-      if (subscriptionRef.current) {
-        subscriptionRef.current.subscription.unsubscribe();
-        subscriptionRef.current = null;
-      }
-      if (feedbackId) {
-        console.log("Setting up Action Cable subscription...", feedbackId);
-        const subscription = consumer.subscriptions.create(
-          {
-            channel: "FeedbackChannel",
-            feedback_id: feedbackId
-          },
-          {
-            connected() {
-              console.log("\u{1F7E2} Connected to FeedbackChannel");
-            },
-            disconnected() {
-              console.log("\u{1F534} Disconnected from FeedbackChannel");
-            },
-            rejected() {
-              console.log("\u274C Subscription rejected");
-            },
-            received: handleReceivedMessage
-          }
-        );
-        subscriptionRef.current = {
-          feedbackId,
-          subscription
-        };
-      }
-      return () => {
-        if (subscriptionRef.current) {
-          console.log("Cleaning up subscription...");
-          subscriptionRef.current.subscription.unsubscribe();
-          subscriptionRef.current = null;
-        }
-      };
-    }, [feedbackId, handleReceivedMessage]);
-    return subscriptionRef.current?.subscription;
+      if (!feedbackId)
+        return;
+      const subscription = consumer.subscriptions.create(
+        { channel: "FeedbackChannel", feedback_id: feedbackId },
+        { received: handleMessage }
+      );
+      return () => subscription.unsubscribe();
+    }, [feedbackId, handleMessage]);
   };
 
   // app/javascript/components/ChatHeader.jsx
@@ -26051,7 +25946,6 @@
     };
     (0, import_react10.useEffect)(() => {
       scrollToBottom();
-      console.log(currentFeedback);
     }, [currentFeedback?.replies, isResponseLoading]);
     return /* @__PURE__ */ import_react10.default.createElement("div", {
       className: "flex-1 overflow-y-auto px-4 py-6"
@@ -26081,88 +25975,52 @@
     startListening,
     stopListening
   }) => {
-    const textareaRef = (0, import_react11.useRef)(null);
-    const [isDesktop, setIsDesktop] = (0, import_react11.useState)(window.innerWidth >= 768);
-    (0, import_react11.useEffect)(() => {
-      const handleResize = () => {
-        setIsDesktop(window.innerWidth >= 768);
-      };
-      window.addEventListener("resize", handleResize);
-      return () => window.removeEventListener("resize", handleResize);
-    }, []);
     const handleKeyDown = (e2) => {
-      if (isDesktop && e2.key === "Enter" && !e2.shiftKey) {
+      if (e2.key === "Enter" && !e2.shiftKey && window.innerWidth >= 768) {
         e2.preventDefault();
-        if (message.trim()) {
+        if (message.trim())
           handleSubmit(e2);
-        }
       }
-    };
-    (0, import_react11.useEffect)(() => {
-      if (textareaRef.current) {
-        textareaRef.current.scrollTop = textareaRef.current.scrollHeight;
-      }
-    }, [message]);
-    const handleChange = (e2) => {
-      setMessage(e2.target.value);
     };
     return /* @__PURE__ */ import_react11.default.createElement("div", {
-      className: "border-t border-gray-200 dark:border-white bg-white dark:bg-black px-4 py-4"
-    }, /* @__PURE__ */ import_react11.default.createElement("div", {
-      className: "max-w-3xl mx-auto"
+      className: "border-t border-gray-200 dark:border-white bg-white dark:bg-black p-4"
     }, /* @__PURE__ */ import_react11.default.createElement("form", {
       onSubmit: handleSubmit,
-      className: "flex gap-3 items-center justify-center"
+      className: "max-w-3xl mx-auto flex gap-3 items-center"
     }, /* @__PURE__ */ import_react11.default.createElement("div", {
       className: "relative flex-1"
     }, /* @__PURE__ */ import_react11.default.createElement("textarea", {
-      ref: textareaRef,
       value: message,
-      onChange: handleChange,
+      onChange: (e2) => setMessage(e2.target.value),
       onKeyDown: handleKeyDown,
-      placeholder: isDesktop ? "Press Enter to send" : "Type your message",
-      rows: 1,
+      placeholder: "Type your message",
       className: "h-[57px] w-full p-4 pr-14 text-gray-900 dark:text-white bg-white dark:bg-black rounded-full border border-white dark:border-white focus:ring-2 focus:ring-emerald-500 focus:border-transparent resize-none overflow-y-auto scrollbar-hide",
-      disabled: isSubmitting,
-      style: {
-        scrollbarWidth: "none",
-        msOverflowStyle: "none",
-        "::-webkit-scrollbar": {
-          display: "none"
-        }
-      }
+      disabled: isSubmitting
     }), /* @__PURE__ */ import_react11.default.createElement("button", {
       type: "button",
       onClick: isListening ? stopListening : startListening,
-      disabled: isSubmitting,
-      className: `absolute right-2 top-2 p-2 rounded-full transition-colors ${isListening ? "bg-red-500 hover:bg-red-600 text-white" : "bg-gray-100 dark:bg-white hover:bg-gray-200 dark:hover:bg-gray-500 text-black dark:text-black"}`
+      className: `absolute right-2 top-2 p-2 rounded-full ${isListening ? "bg-red-500 text-white" : "bg-gray-100 dark:bg-white"}`
     }, /* @__PURE__ */ import_react11.default.createElement("svg", {
-      xmlns: "http://www.w3.org/2000/svg",
-      fill: "none",
-      viewBox: "0 0 24 24",
-      strokeWidth: 1.5,
-      stroke: "currentColor",
-      className: "w-6 h-6"
+      className: "w-6 h-6",
+      viewBox: "0 0 24 24"
     }, /* @__PURE__ */ import_react11.default.createElement("path", {
-      strokeLinecap: "round",
-      strokeLinejoin: "round",
+      fill: "none",
+      strokeWidth: "1.5",
+      stroke: "currentColor",
       d: "M12 18.75a6 6 0 006-6v-1.5m-6 7.5a6 6 0 01-6-6v-1.5m6 7.5v3.75m-3.75 0h7.5M12 15.75a3 3 0 01-3-3V4.5a3 3 0 116 0v8.25a3 3 0 01-3 3z"
     })))), /* @__PURE__ */ import_react11.default.createElement("button", {
       type: "submit",
       disabled: isSubmitting || !message.trim(),
-      className: `rounded-xl transition-colors p-3 flex items-center justify-center ${message.trim() ? "bg-emerald-500 hover:bg-emerald-600 text-white" : "bg-gray-100 dark:bg-gray-600 text-gray-400 dark:text-gray-500 cursor-not-allowed"}`
+      className: `rounded-xl p-3 ${message.trim() ? "bg-emerald-500 hover:bg-emerald-600" : "bg-gray-100"} text-white`
     }, /* @__PURE__ */ import_react11.default.createElement("svg", {
-      xmlns: "http://www.w3.org/2000/svg",
-      fill: "none",
-      viewBox: "0 0 24 24",
-      strokeWidth: 1.5,
-      stroke: "currentColor",
-      className: "w-6 h-6"
+      className: "w-6 h-6",
+      viewBox: "0 0 24 24"
     }, /* @__PURE__ */ import_react11.default.createElement("path", {
-      strokeLinecap: "round",
-      strokeLinejoin: "round",
+      fill: "none",
+      strokeWidth: "1.5",
+      stroke: "currentColor",
       d: "M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5"
-    }))))));
+    })))));
   };
   var ChatInput_default = ChatInput;
 
@@ -26200,20 +26058,14 @@
             id: `temp-${Date.now()}`,
             content,
             created_at: new Date().toISOString(),
-            sender_type: "user"
+            sender_type: isUser ? "user" : "system"
           }]
         });
       } else {
         setCurrentFeedback((prev) => ({
           ...prev,
           replies: [
-            ...prev.replies,
-            {
-              id: `temp-${Date.now()}`,
-              content,
-              created_at: new Date().toISOString(),
-              sender_type: isUser ? "user" : "assistant"
-            }
+            ...prev.replies
           ]
         }));
       }

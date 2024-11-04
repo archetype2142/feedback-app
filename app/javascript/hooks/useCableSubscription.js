@@ -1,71 +1,23 @@
-// hooks/useCableSubscription.js
-import { useRef, useEffect, useCallback } from 'react';
+import { useEffect, useCallback } from 'react';
 import { createConsumer } from '@rails/actioncable';
 
 const consumer = createConsumer();
 
 export const useCableSubscription = (feedbackId, setCurrentFeedback) => {
-  const subscriptionRef = useRef(null);
-  
-  // Memoize the message handler to keep it stable across renders
-  const handleReceivedMessage = useCallback((data) => {
-    console.log('📩 Received data:', data);
-
-    switch(data.type) {
-      case 'initial_state':
-      case 'update':
-        setCurrentFeedback(data.feedback);
-        break;
-      case 'test':
-        console.log('Received test message:', data.message);
-        break;
-      default:
-        console.log('Unknown message type:', data.type);
+  const handleMessage = useCallback((data) => {
+    if (data.type === 'initial_state' || data.type === 'update') {
+      setCurrentFeedback(data.feedback);
     }
-  }, []);
+  }, [setCurrentFeedback]);
 
-   useEffect(() => {
-    if (subscriptionRef.current) {
-      subscriptionRef.current.subscription.unsubscribe();
-      subscriptionRef.current = null;
-    }
+  useEffect(() => {
+    if (!feedbackId) return;
 
-    if (feedbackId) {
-      console.log('Setting up Action Cable subscription...', feedbackId);
-      
-      const subscription = consumer.subscriptions.create(
-        {
-          channel: 'FeedbackChannel',
-          feedback_id: feedbackId
-        },
-        {
-          connected() {
-            console.log('🟢 Connected to FeedbackChannel');
-          },
-          disconnected() {
-            console.log('🔴 Disconnected from FeedbackChannel');
-          },
-          rejected() {
-            console.log('❌ Subscription rejected');
-          },
-          received: handleReceivedMessage
-        }
-      );
+    const subscription = consumer.subscriptions.create(
+      { channel: 'FeedbackChannel', feedback_id: feedbackId },
+      { received: handleMessage }
+    );
 
-      subscriptionRef.current = {
-        feedbackId,
-        subscription
-      };
-    }
-
-    return () => {
-      if (subscriptionRef.current) {
-        console.log('Cleaning up subscription...');
-        subscriptionRef.current.subscription.unsubscribe();
-        subscriptionRef.current = null;
-      }
-    };
-  }, [feedbackId, handleReceivedMessage]);
-
-  return subscriptionRef.current?.subscription;
+    return () => subscription.unsubscribe();
+  }, [feedbackId, handleMessage]);
 };

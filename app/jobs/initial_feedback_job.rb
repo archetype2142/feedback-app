@@ -7,11 +7,11 @@ class InitialFeedbackJob < ApplicationJob
     feedback_data = JSON.parse(initial_response)
     
     sentiment_score = feedback_data['sentiment_score']
-    
+
     final_output = case
-    when sentiment_score < -2
+    when sentiment_score < -1
       ::RESPONSE_NEG
-    when sentiment_score > -2 && sentiment_score < 2
+    when sentiment_score > -1 && sentiment_score < 1
       ::RESPONSE_NEU
     else
       ::RESPONSE_POS

@@ -11,12 +11,8 @@ Bundler.require(*Rails.groups)
 module FeebackApp
   class Application < Rails::Application
     config.action_cable.mount_path = '/cable'
-    config.action_cable.url = 'ws://localhost:3000/cable'
-    config.action_cable.allowed_request_origins = [
-      'http://localhost:3000',
-      'http://localhost:3001', # Add your frontend URL if different
-      /http:\/\/localhost:*/   # Or use regex for development
-    ]
+    config.action_cable.url = 'ws://squirrel.feedback-app-470637.c66.me/cable'
+    config.action_cable.allowed_request_origins = ['*']
     # Initialize configuration defaults for originally generated Rails version.
     config.load_defaults 7.1
 
@@ -34,14 +30,12 @@ module FeebackApp
     # config.eager_load_paths << Rails.root.join("extras")
     config.middleware.insert_before 0, Rack::Cors do
       allow do
-        origins 'localhost:3000', '127.0.0.1:3000', 'stunning-lionfish-enormously.ngrok-free.app'
+        origins '*'
         resource '*',
           headers: :any,
           methods: [:get, :post, :patch, :put, :delete, :options],
-          credentials: true
+          credentials: false
       end
-    end
-
-    config.hosts << "stunning-lionfish-enormously.ngrok-free.app"
+    end 
   end
 end

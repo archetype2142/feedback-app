@@ -8,3 +8,4 @@ export const NewChatButton = ({ handleNewChat }) => (
     New Chat
   </button>
 );
+

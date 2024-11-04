@@ -4,7 +4,7 @@ PROMPT_1 = '''
 You will receive a piece of text, which is feedback regarding a product. Your job is to analyze the given feedback and return a JSON object that looks as follows:
 {
   "feedback": "Parse the given text input and extract the feedback points. This should be a list of strings, where each string is a feedback point.",
-  "sentiment_score": "On a scale of -5 to 5, where -5 is negative, 0 is neutral, and 5 is positive, provide a sentiment score for the entire feedback. This entry should be an integer value.",
+  "sentiment_score": "On a scale of -5 to 5, where -5 is very negative, 0 is neutral, and 5 is very positive, provide a sentiment score for the entire feedback. This entry should be an integer value.",
   "good_points": "Parse the given text input and extract the positive feedback points. This should be a list of strings, where each string is a positive feedback point."
 }
 While analyzing the feedback, make sure to fill the JSON object only with information extracted from the feedback. Do not rephrase or rewrite the feedback.

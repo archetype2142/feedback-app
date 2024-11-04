@@ -52,7 +52,7 @@ const FeedbackForm = () => {
           id: `temp-${Date.now()}`,
           content: content,
           created_at: new Date().toISOString(),
-          sender_type: 'user'
+          sender_type: isUser ? 'user' : 'system'
         }]
       });
     } else {
@@ -60,12 +60,6 @@ const FeedbackForm = () => {
         ...prev,
         replies: [
           ...prev.replies,
-          {
-            id: `temp-${Date.now()}`,
-            content: content,
-            created_at: new Date().toISOString(),
-            sender_type: isUser ? 'user' : 'assistant'
-          }
         ]
       }));
     }
